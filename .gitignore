@@ -1,0 +1,6 @@
+/.idea
+/.vscode
+/docker-compose.yml
+/scripts
+/src
+/target
