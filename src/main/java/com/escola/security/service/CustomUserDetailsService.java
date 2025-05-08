@@ -16,15 +16,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final AlunoRepository alunoRepository;
     
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // Tenta encontrar um professor
-        var professor = professorRepository.findByUsername(username);
+        var professor = professorRepository.findByEmail(email);
         if (professor.isPresent()) {
             return professor.get();
         }
         
         // Se não encontrou professor, tenta encontrar um aluno
-        return alunoRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
+        return alunoRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
     }
 } 
