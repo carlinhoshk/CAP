@@ -36,8 +36,8 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -B
 
-      - name: Run tests
-        run: mvn test -B
+      - name: List target directory
+        run: ls -la target/
 
       - name: Upload artifact JAR
         uses: actions/upload-artifact@v3
