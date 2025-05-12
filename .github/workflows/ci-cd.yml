@@ -52,7 +52,7 @@ jobs:
           prerelease: false
           files: ./target/*.jar
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         
       - name: Run Tests
         run: mvn test
