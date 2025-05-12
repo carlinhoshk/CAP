@@ -62,26 +62,30 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-        
-      - name: Build Docker images e subir serviços
-        uses: hoverkraft-tech/compose-action@v2.0.1
-        with:
-          compose-file: "./docker-compose.yml"
-          up-flags: "--build -d"
-          down-flags: "--volumes"
+
+      - name: Build Docker image
+        run: docker build -t ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} -t ${{ env.DOCKER_IMAGE }}:latest .
+
+      - name: Run Docker container
+        run: |
+          docker run -d --name escola-app-test -p 8080:8080 ${{ env.DOCKER_IMAGE }}:latest
 
       - name: Wait for services to be ready
         run: |
           sleep 30
-          docker compose ps
+          docker ps
 
       - name: Run Integration Tests
         run: mvn verify
 
+      - name: Stop and remove Docker container
+        if: always()
+        run: |
+          docker stop escola-app-test || true
+          docker rm escola-app-test || true
+
       - name: Push Docker image
         run: |
-          docker tag escola-app:latest ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
-          docker tag escola-app:latest ${{ env.DOCKER_IMAGE }}:latest
           docker push ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
           docker push ${{ env.DOCKER_IMAGE }}:latest
 
