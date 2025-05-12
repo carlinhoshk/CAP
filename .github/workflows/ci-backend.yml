@@ -1,0 +1,123 @@
+name: CI Backend (Spring Boot)
+
+on:
+  push:
+    branches: [main, branch-dev]
+  pull_request:
+    branches: [main, branch-dev]
+
+jobs:
+  build-and-test:
+    name: Build & Test Spring Boot (${{ github.ref_name }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      # (Opcional) Cache manual se você quiser mais controle
+      # - name: Cache Maven packages
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.m2/repository
+      #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-m2-
+
+      - name: Build with Maven
+        run: mvn clean package -B
+
+      - name: Run tests
+        run: mvn test
+
+      - name: List target directory
+        run: ls -la target/
+
+      - name: Upload artifact JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar-${{ github.ref_name }}
+          path: target/*.jar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
