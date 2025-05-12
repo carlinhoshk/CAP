@@ -26,13 +26,13 @@ jobs:
         run: ./mvnw clean package
         
       - name: Upload JAR 
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jar-main
           path: ./target/*.jar
 
       - name: Criar Release no GitHub
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v4
         with:
           tag_name: v${{ github.run_number }}
           name: Release ${{ github.run_number }}
