@@ -25,6 +25,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         
         // Se não encontrou professor, tenta encontrar um aluno
         return alunoRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario não encontrado: " + email));
     }
 } 

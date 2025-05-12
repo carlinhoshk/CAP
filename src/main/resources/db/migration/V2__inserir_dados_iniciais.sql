@@ -5,4 +5,4 @@ INSERT INTO professor (nome, disciplina, email, registro, username, password) VA
 INSERT INTO aluno (nome, matricula, email, idade, username, password) VALUES
 ('Pedro Souza', 'ALU001', 'pedro.souza@aluno.escola.com', 15, 'pedro.souza', '$2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6'),
 ('Ana Lima', 'ALU002', 'ana.lima@aluno.escola.com', 16, 'ana.lima', '$2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6'),
-('Carlos Oliveira', 'ALU003', 'carlos@aluno.escola.com', 27, 'carlos.oliveira', 'teste');
+('Carlos Oliveira', 'ALU003', 'carlos@aluno.escola.com', 27, 'carlos.oliveira', '$2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6');
