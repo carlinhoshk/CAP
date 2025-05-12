@@ -25,6 +25,21 @@ jobs:
       - name: Build with Maven
         run: ./mvnw clean package
         
+      - name: Upload JAR 
+        uses: actions/upload-artifact@v3
+        with:
+          name: jar-main
+          path: ./target/*.jar
+
+      - name: Criar Release no GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release ${{ github.run_number }}
+          files: ./target/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
       - name: Run Tests
         run: ./mvnw test
         
@@ -36,10 +51,11 @@ jobs:
         
       - name: Build Docker images
         run: docker-compose build
-        
-      - name: Run Docker Compose
-        run: docker-compose up -d
-        
+
+      - uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./docker-compose.yml"
+
       - name: Wait for services to be ready
         run: |
           sleep 30
@@ -48,10 +64,6 @@ jobs:
       - name: Run Integration Tests
         run: ./mvnw verify
         
-      - name: Stop Docker Compose
-        if: always()
-        run: docker-compose down
-
       - name: Push Docker image
         run: |
           docker tag escola-app:latest ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
