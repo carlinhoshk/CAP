@@ -1,13 +1,14 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline with Docker Compose
 
-permissions:
-  contents: write
-  
 on:
   push:
     branches: [ main, branch-dev ]
   pull_request:
     branches: [ main, branch-dev ]
+
+permissions:
+  contents: write
+  releases: write
 
 env:
   DOCKER_IMAGE: carlinhoshk/escola-app
@@ -17,28 +18,27 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     environment: Dockerhub-cred
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-          
-      - name: Instalar Docker Compose
-        run: sudo apt-get update && sudo apt-get install -y docker-compose-plugin
 
       - name: Build with Maven
-        run: mvn clean package
-        
-      - name: Upload JAR 
+        run: mvn clean package -DskipTests
+
+      - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: jar-main
-          path: ./target/*.jar
+          path: target/*.jar
 
       - name: Criar Release no GitHub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
@@ -47,16 +47,12 @@ jobs:
           body: |
             - Release automática gerada pelo CI.
             - Commit: ${{ github.sha }}
-            - Veja o changelog para detalhes.
           draft: false
           prerelease: false
-          files: ./target/*.jar
+          files: target/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-      - name: Run Tests
-        run: mvn test
-        
+
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -64,27 +60,23 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} -t ${{ env.DOCKER_IMAGE }}:latest .
-
-      - name: Run Docker container
         run: |
-          docker run -d --name escola-app-test -p 8080:8080 ${{ env.DOCKER_IMAGE }}:latest
+          docker build \
+            -t ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} \
+            -t ${{ env.DOCKER_IMAGE }}:latest .
 
-      - name: Wait for services to be ready
-        run: |
-          sleep 30
-          docker ps
-
+      - name: Start services with Docker Compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./docker/docker-compose.yml"
+          up-flags: "--build -d"
+          down-flags: "--volumes"
+      
       - name: Run Integration Tests
         run: mvn verify
 
-      - name: Stop and remove Docker container
-        if: always()
-        run: |
-          docker stop escola-app-test || true
-          docker rm escola-app-test || true
-
       - name: Push Docker image
+        if: success()
         run: |
           docker push ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
           docker push ${{ env.DOCKER_IMAGE }}:latest
