@@ -8,8 +8,7 @@ on:
 
 permissions:
   contents: write
-  releases: write
-
+  
 env:
   DOCKER_IMAGE: carlinhoshk/escola-app
   DOCKER_TAG: ${{ github.sha }}
